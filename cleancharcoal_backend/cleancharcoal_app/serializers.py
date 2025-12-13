@@ -1,42 +1,81 @@
-from rest_framework import serializers
+from django.db import transaction
 from django.contrib.auth.models import User
+from django.utils.translation import gettext_lazy as _
+
+from rest_framework import serializers
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+
 from .models import Profile
+
+
 class UserMiniSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ["id", "username", "first_name", "last_name", "email"]
-class ProfileSerializer(serializers.ModelSerializer):
+        fields = ["id", "username", "email", "first_name", "last_name"]
+
+
+class UserUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ("first_name", "last_name")
+
+
+class ProfileReadSerializer(serializers.ModelSerializer):
     user = UserMiniSerializer(read_only=True)
+
     class Meta:
         model = Profile
         fields = [
             "id",
             "user",
-            # role/type
             "role",
             "account_type",
-            # contact
             "phone",
-            # picture
             "profile_picture",
-            # address
             "country",
             "province",
             "district",
             "sector",
             "cell",
             "village",
-            # leader jurisdiction (only if role=leader)
             "leader_district",
             "leader_sector",
-            # otp status only (do NOT expose otp_code)
             "otp_verified",
-
             "created_at",
         ]
+        read_only_fields = fields
 
-        # user/role/security fields cannot be edited from normal profile update
-        read_only_fields = ["id", "user", "role", "otp_verified", "created_at"]
+
+class ProfileUpdateSerializer(serializers.ModelSerializer):
+    # nested user update
+    user_data = UserUpdateSerializer(source="user", required=False)
+    profile_picture = serializers.ImageField(required=False, allow_null=True)
+
+    class Meta:
+        model = Profile
+        fields = [
+            "user_data",
+            "phone",
+            "profile_picture",
+            "country",
+            "province",
+            "district",
+            "sector",
+            "cell",
+            "village",
+        ]
+
+    @transaction.atomic
+    def update(self, instance, validated_data):
+        user_data = validated_data.pop("user", None)
+
+        if user_data:
+            user_instance = instance.user
+            for attr, value in user_data.items():
+                setattr(user_instance, attr, value)
+            user_instance.save()
+
+        return super().update(instance, validated_data)
 
     def validate_phone(self, value):
         value = (value or "").strip()
@@ -44,19 +83,28 @@ class ProfileSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Phone is required.")
         return value
 
+
+# ---------------------------
+# Custom JWT Login: only verified users can login
+# ---------------------------
+TokenObtainPairSerializer.default_error_messages["no_active_account"] = _(
+    "No account found with the given credentials."
+)
+
+class VerifiedTokenObtainPairSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):
-        # If you want address to be required (recommended for burners)
-        province = (attrs.get("province") or "").strip()
-        district = (attrs.get("district") or "").strip()
-        sector = (attrs.get("sector") or "").strip()
+        data = super().validate(attrs)
+        user = self.user
 
-        # Only enforce when these fields are being updated/created through this serializer
-        # (keeps PATCH flexible)
-        if "province" in attrs and not province:
-            raise serializers.ValidationError({"province": "Province is required."})
-        if "district" in attrs and not district:
-            raise serializers.ValidationError({"district": "District is required."})
-        if "sector" in attrs and not sector:
-            raise serializers.ValidationError({"sector": "Sector is required."})
+        if not hasattr(user, "profile"):
+            raise serializers.ValidationError({"detail": "Profile missing."})
 
-        return attrs
+        if not user.profile.otp_verified:
+            raise serializers.ValidationError({"detail": "Account not verified. Verify OTP first."})
+
+        if not user.is_active:
+            raise serializers.ValidationError({"detail": "Account disabled."})
+
+        return data
+class DeleteAccountSerializer(serializers.Serializer):
+    password = serializers.CharField(write_only=True)

@@ -46,6 +46,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'cleancharcoal_app',
     'drf_spectacular',
+    'rest_framework_simplejwt',
+    'djoser',
 ]
 
 MIDDLEWARE = [
@@ -144,6 +146,9 @@ else:
 # --- REST FRAMEWORK & SPECTACULAR ---
 REST_FRAMEWORK = {
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+    ),
 }
 SPECTACULAR_SETTINGS = {
     "TITLE": "CleanCharcoal API",
@@ -153,5 +158,31 @@ SPECTACULAR_SETTINGS = {
         "securitySchemes": {
             "bearerAuth": {"type": "http", "scheme": "bearer", "bearerFormat": "JWT"}
         }
+    },
+}
+from datetime import timedelta
+
+SIMPLE_JWT = {
+    # Tokens will expire after 5 minutes of inactivity (Recommended for security)
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
+    
+    # 🌟 CRITICAL CHANGE 🌟
+    # This points to your custom serializer that enforces OTP verification and custom error messages.
+    'TOKEN_OBTAIN_SERIALIZER': 'cleancharcoal_app.serializers.VerifiedTokenObtainPairSerializer',
+}
+DJOSER = {
+    # 1. Email configuration: Use Djoser's default email sender classes
+    'EMAIL': {
+        'password_reset': 'djoser.email.PasswordResetEmail',
+    },
+    
+    # 2. Frontend URL for the link: This is the URL where your frontend will handle the password reset form.
+    # The uid and token parameters will be appended here.
+    # Replace 'http://your-frontend.com' with the actual URL of your client application.
+    'PASSWORD_RESET_CONFIRM_URL': 'http://your-frontend.com/reset-password/confirm/{uid}/{token}',
+    
+    'SERIALIZERS': {
+       
     },
 }
