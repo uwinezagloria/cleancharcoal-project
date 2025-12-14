@@ -51,6 +51,11 @@ from .views_admin import (
     AdminAppointmentListAPIView,
     AdminRescheduleListAPIView,
 )
+from .views_sensor_admin import AdminSensorListCreateAPIView, AdminSensorRotateKeyAPIView
+from .views_sensor_device import SensorDataIngestAPIView
+from .views_ai_and_sensor_read import KilnSensorsAPIView, KilnSensorReadingsAPIView, KilnAIInsightsAPIView
+from .views_notifications import MyNotificationsAPIView, NotificationMarkReadAPIView
+from .views_admin_kiln_provision import AdminProvisionKilnAfterApprovalAPIView
 
 
 urlpatterns = [
@@ -113,4 +118,23 @@ urlpatterns = [
 
     path("leader/reschedules/", LeaderRescheduleListAPIView.as_view(), name="leader_reschedules"),
     path("leader/reschedules/<int:reschedule_id>/decision/", LeaderRescheduleDecisionAPIView.as_view(), name="leader_reschedule_decision"),
+    # --- Admin climate control ---
+path("admin/permissions/<int:permission_id>/provision-kiln/", AdminProvisionKilnAfterApprovalAPIView.as_view()),
+
+# --- Admin sensors ---
+path("admin/sensors/", AdminSensorListCreateAPIView.as_view()),
+path("admin/sensors/<int:sensor_id>/rotate-key/", AdminSensorRotateKeyAPIView.as_view()),
+
+# --- Device ingest ---
+path("device/readings/ingest/", SensorDataIngestAPIView.as_view()),
+
+# --- Read sensors + data + insights ---
+path("kilns/<int:kiln_id>/sensors/", KilnSensorsAPIView.as_view()),
+path("kilns/<int:kiln_id>/readings/", KilnSensorReadingsAPIView.as_view()),
+path("kilns/<int:kiln_id>/insights/", KilnAIInsightsAPIView.as_view()),
+
+# --- Notifications ---
+path("notifications/", MyNotificationsAPIView.as_view()),
+path("notifications/<int:notif_id>/read/", NotificationMarkReadAPIView.as_view()),
+
 ]

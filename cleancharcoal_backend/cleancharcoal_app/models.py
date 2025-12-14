@@ -45,10 +45,8 @@ class Profile(models.Model):
 
 class Kiln(models.Model):
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name="kilns")
-
     name = models.CharField(max_length=200)
 
-    # where the kiln WORK happens (can differ from burner home address)
     work_province = models.CharField(max_length=100, default="Unknown")
     work_district = models.CharField(max_length=100, default="Unknown")
     work_sector = models.CharField(max_length=100, default="Unknown")
@@ -58,11 +56,20 @@ class Kiln(models.Model):
     gps_coordinates = models.CharField(max_length=100, blank=True, null=True)
     location_description = models.TextField(blank=True, null=True)
 
+    # ✅ climate gate
+    approved_for_burning = models.BooleanField(default=False)
+    approved_permission = models.OneToOneField(
+        "PermissionRequest",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="approved_kiln_link",
+    )
+
     created_at = models.DateTimeField(auto_now_add=True)
 
-    def __str__(self):
-        return f"{self.name} ({self.owner.username})"
 
+import secrets
 
 class Sensor(models.Model):
     SENSOR_TYPES = [
@@ -77,11 +84,16 @@ class Sensor(models.Model):
     sensor_type = models.CharField(max_length=30, choices=SENSOR_TYPES)
     serial_number = models.CharField(max_length=100, unique=True)
 
+    # ✅ device api key for embedded device
+    api_key = models.CharField(max_length=64, unique=True, editable=False)
+
     is_active = models.BooleanField(default=True)
     installed_at = models.DateTimeField(auto_now_add=True)
 
-    def __str__(self):
-        return f"{self.sensor_type} - {self.serial_number}"
+    def save(self, *args, **kwargs):
+        if not self.api_key:
+            self.api_key = secrets.token_hex(32)  # 64 chars
+        super().save(*args, **kwargs)
 
 
 class SensorData(models.Model):
@@ -203,3 +215,38 @@ class AppointmentReschedule(models.Model):
 
     def __str__(self):
         return f"Reschedule #{self.id} ({self.status})"
+class AIInsight(models.Model):
+    SEVERITY_CHOICES = [
+        ("info", "Info"),
+        ("warning", "Warning"),
+        ("critical", "Critical"),
+    ]
+
+    kiln = models.ForeignKey(Kiln, on_delete=models.CASCADE, related_name="ai_insights")
+    permission = models.ForeignKey(PermissionRequest, on_delete=models.SET_NULL, null=True, blank=True)
+    created_by = models.CharField(max_length=20, default="system")  # system / model / admin
+
+    title = models.CharField(max_length=200)
+    message = models.TextField()
+    severity = models.CharField(max_length=20, choices=SEVERITY_CHOICES, default="info")
+
+    data = models.JSONField(blank=True, null=True)  # store sensor snapshot / reason
+    created_at = models.DateTimeField(auto_now_add=True)
+class Notification(models.Model):
+    TYPE_CHOICES = [
+        ("permission", "Permission"),
+        ("sensor", "Sensor"),
+        ("insight", "Insight"),
+        ("system", "System"),
+    ]
+    recipient = models.ForeignKey(User, on_delete=models.CASCADE, related_name="notifications")
+    notif_type = models.CharField(max_length=20, choices=TYPE_CHOICES, default="system")
+    title = models.CharField(max_length=200)
+    message = models.TextField()
+
+    kiln = models.ForeignKey(Kiln, on_delete=models.SET_NULL, null=True, blank=True)
+    permission = models.ForeignKey(PermissionRequest, on_delete=models.SET_NULL, null=True, blank=True)
+    insight = models.ForeignKey(AIInsight, on_delete=models.SET_NULL, null=True, blank=True)
+
+    is_read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
