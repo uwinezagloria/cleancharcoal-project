@@ -5,7 +5,7 @@ from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
-from .models import Profile
+from .models import Profile,Kiln, PermissionRequest, Appointment, AppointmentReschedule
 
 
 class UserMiniSerializer(serializers.ModelSerializer):
