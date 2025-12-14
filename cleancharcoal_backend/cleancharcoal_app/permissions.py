@@ -6,3 +6,10 @@ class IsAdminProfile(BasePermission):
             and hasattr(request.user, "profile")
             and request.user.profile.role == "admin"
         )
+
+class IsOTPVerified(BasePermission):
+    message = "Account not verified. Please verify OTP."
+
+    def has_permission(self, request, view):
+        user = request.user
+        return bool(user and user.is_authenticated and hasattr(user, "profile") and user.profile.otp_verified)
