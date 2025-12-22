@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+{% load static %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Overview - Clean Charcoal Rwanda Admin</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* Figma Color Definitions */
+        :root {
+            --figma-dark-navy: #1F2A38;
+            --figma-orange: #FF5722;
+        }
+        
+        body { font-family: 'Roboto', sans-serif; background: #f8f9fa; }
+        .dashboard-container { min-height: 100vh; }
+        .sidebar { background: var(--figma-dark-navy); color: white; min-height: 100vh; padding: 20px; }
+        .main-content { padding: 30px; }
+        .admin-card { 
+            background: white; 
+            border-radius: 10px; 
+            padding: 25px; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1); 
+            margin-bottom: 20px; 
+            border-left: 5px solid var(--figma-orange);
+            transition: transform 0.3s;
+        }
+        .admin-card:hover {
+            transform: translateY(-3px);
+        }
+        
+        .list-group-item.active {
+            background-color: rgba(255, 255, 255, 0.1) !important;
+            border-left: 5px solid var(--figma-orange) !important;
+            color: white !important;
+            font-weight: 600;
+        }
+
+        .text-dark-navy { color: var(--figma-dark-navy) !important; }
+        .text-danger { color: #dc3545 !important; }
+        .btn-admin-action { background-color: var(--figma-orange) !important; border-color: var(--figma-orange) !important; color: white !important; }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <div class="row g-0">
+            <div class="col-md-3 sidebar">
+                <div class="text-center mb-4">
+                    <h3>⚙️ System Admin</h3>
+                    <p class="mb-0">Global Oversight</p>
+                </div>
+                <div class="list-group">
+                    <a href="{% url 'web_admin_dashboard' %}" class="list-group-item list-group-item-action bg-transparent text-white border-0 active">
+                        <i class="fas fa-database me-2"></i> System Overview
+                    </a>
+                    <a href="{% url 'web_admin_users' %}" class="list-group-item list-group-item-action bg-transparent text-white border-0">
+                        <i class="fas fa-users-cog me-2"></i> User Management
+                    </a>
+                    <a href="#" onclick="handleLogout(event); return false;" class="list-group-item list-group-item-action bg-transparent text-white border-0 mt-4">
+                        <i class="fas fa-sign-out-alt me-2"></i> Logout
+                    </a>
+                </div>
+            </div>
+            
+            <div class="col-md-9 main-content">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2 class="text-dark"><i class="fas fa-user-shield me-2"></i> Administrative Control Panel</h2>
+                    <a href="{% url 'web_admin_users' %}" class="btn btn-admin-action">
+                        <i class="fas fa-user-plus me-2"></i> New User / Control
+                    </a>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="admin-card text-center">
+                            <h3 class="text-dark-navy" id="totalUsers">-</h3>
+                            <p class="mb-0 fw-bold">Total Users</p>
+                            <small class="text-muted">All Roles</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="admin-card text-center">
+                            <h3 class="text-dark-navy" id="totalLeaders">-</h3>
+                            <p class="mb-0 fw-bold">Leaders</p>
+                            <small class="text-muted">District Leaders</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="admin-card text-center">
+                            <h3 class="text-dark-navy" id="totalBurners">-</h3>
+                            <p class="mb-0 fw-bold">Burners</p>
+                            <small class="text-muted">Active Producers</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="admin-card text-center">
+                            <h3 class="text-dark-navy" id="totalPermissions">-</h3>
+                            <p class="mb-0 fw-bold">Permission Requests</p>
+                            <small class="text-muted">All Statuses</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row mt-3">
+                    <div class="col-md-3">
+                        <div class="admin-card text-center">
+                            <h3 class="text-dark-navy" id="submittedPermissions">-</h3>
+                            <p class="mb-0 fw-bold">Submitted</p>
+                            <small class="text-muted">Pending Review</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="admin-card text-center">
+                            <h3 class="text-success" id="approvedPermissions">-</h3>
+                            <p class="mb-0 fw-bold">Approved</p>
+                            <small class="text-muted">Granted Permits</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="admin-card text-center">
+                            <h3 class="text-danger" id="rejectedPermissions">-</h3>
+                            <p class="mb-0 fw-bold">Rejected</p>
+                            <small class="text-muted">Denied Requests</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Helper function to get CSRF token
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        // Handle logout
+        async function handleLogout(event) {
+            event.preventDefault();
+            try {
+                const csrftoken = getCookie('csrftoken');
+                await fetch('/api/auth/logout/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrftoken
+                    },
+                    credentials: 'include'
+                });
+                window.location.href = '/login/';
+            } catch (error) {
+                console.error('Logout error:', error);
+                window.location.href = '/login/';
+            }
+        }
+
+        // Load dashboard data
+        async function loadDashboardData() {
+            try {
+                console.log('Loading admin dashboard data...');
+                const token = localStorage.getItem('token');
+                const csrftoken = getCookie('csrftoken');
+                const headers = {
+                    'Content-Type': 'application/json',
+                };
+                
+                if (csrftoken) {
+                    headers['X-CSRFToken'] = csrftoken;
+                }
+                if (token) {
+                    headers['Authorization'] = `Token ${token}`;
+                }
+                
+                console.log('Fetching from /api/admin/dashboard/');
+                const response = await fetch('/api/admin/dashboard/', {
+                    method: 'GET',
+                    headers: headers,
+                    credentials: 'include'
+                });
+
+                console.log('Response status:', response.status);
+
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        console.log('Unauthorized, redirecting to login');
+                        window.location.href = '/login/';
+                        return;
+                    }
+                    const errorText = await response.text();
+                    console.error('API Error:', errorText);
+                    throw new Error('Failed to load dashboard data: ' + response.status);
+                }
+
+                const data = await response.json();
+                console.log('Dashboard data received:', data);
+                
+                if (!data || !data.counts) {
+                    console.error('Invalid data format:', data);
+                    throw new Error('Invalid data format received');
+                }
+
+                const counts = data.counts;
+                console.log('Counts:', counts);
+
+                // Update all counts with error handling
+                const updateElement = (id, value) => {
+                    const element = document.getElementById(id);
+                    if (element) {
+                        element.textContent = value || 0;
+                    } else {
+                        console.warn('Element not found:', id);
+                    }
+                };
+
+                updateElement('totalUsers', counts.users_total);
+                updateElement('totalLeaders', counts.leaders_total);
+                updateElement('totalBurners', counts.burners_total);
+                updateElement('totalPermissions', counts.permissions_total);
+                updateElement('submittedPermissions', counts.permissions_submitted);
+                updateElement('approvedPermissions', counts.permissions_approved);
+                updateElement('rejectedPermissions', counts.permissions_rejected);
+
+                console.log('Dashboard data updated successfully');
+
+            } catch (error) {
+                console.error('Error loading dashboard data:', error);
+                // Show error message on page
+                const errorMsg = document.createElement('div');
+                errorMsg.className = 'alert alert-danger';
+                errorMsg.textContent = 'Failed to load dashboard data. Please refresh the page.';
+                errorMsg.style.margin = '20px';
+                const mainContent = document.querySelector('.main-content');
+                if (mainContent && !document.querySelector('.alert-danger')) {
+                    mainContent.insertBefore(errorMsg, mainContent.firstChild);
+                }
+            }
+        }
+
+        // Load data on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Admin dashboard page loaded');
+            // Load immediately
+            loadDashboardData();
+            // Refresh every 30 seconds
+            setInterval(loadDashboardData, 30000);
+        });
+        
+        // Also try loading if DOMContentLoaded already fired
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', loadDashboardData);
+        } else {
+            // DOM already loaded
+            loadDashboardData();
+        }
+    </script>
+</body>
+</html>

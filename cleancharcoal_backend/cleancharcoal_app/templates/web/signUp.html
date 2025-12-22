@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+{% load static %}
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="csrf-token" content="{{ csrf_token }}">
+  <title>Sign Up - Clean Charcoal Rwanda</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'web/assets/css/auth.css' %}">
+</head>
+
+<body class="cc-bg">
+  <div class="container py-5">
+    <div class="cc-card mx-auto">
+
+      <h2 class="cc-title text-center mb-3">Create Account</h2>
+
+      <!-- PANEL 1 -->
+      <div class="cc-panel" id="step1Panel">
+        <p class="text-center text-muted">Enter your details to create your account.</p>
+
+        <form id="signupForm" class="needs-validation" novalidate>
+          <div class="mb-3">
+            <label class="form-label">Full Name / Cooperative</label>
+            <input type="text" class="form-control" id="fullName" required placeholder="Your full name">
+            <div class="invalid-feedback">Required</div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Phone</label>
+            <input type="tel" class="form-control" id="phone" required placeholder="+2507xxxxxxxx">
+            <div class="invalid-feedback">Required</div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Email</label>
+            <input type="email" class="form-control" id="signupEmail" required placeholder="example@gmail.com">
+            <div class="invalid-feedback">Required</div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Province</label>
+              <select class="form-select" id="province" required>
+                <option value="">Select</option>
+                <option>Kigali City</option>
+                <option>Southern Province</option>
+                <option>Northern Province</option>
+                <option>Eastern Province</option>
+                <option>Western Province</option>
+              </select>
+              <div class="invalid-feedback">Required</div>
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <label class="form-label">District</label>
+              <input type="text" class="form-control" id="district" required placeholder="Nyarugenge">
+              <div class="invalid-feedback">Required</div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Sector</label>
+              <input type="text" class="form-control" id="sector" required placeholder="Kacyiru">
+              <div class="invalid-feedback">Required</div>
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Cell</label>
+              <input type="text" class="form-control" id="cell" required placeholder="Kiyovu">
+              <div class="invalid-feedback">Required</div>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Village</label>
+            <input type="text" class="form-control" id="village" required placeholder="Rugunga">
+            <div class="invalid-feedback">Required</div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Password</label>
+            <input type="password" class="form-control" id="signupPassword" required placeholder="Strong password">
+            <div class="invalid-feedback">Required</div>
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label">Confirm Password</label>
+            <input type="password" class="form-control" id="confirmPassword" required placeholder="Confirm password">
+            <div class="invalid-feedback" id="confirmPasswordError">Passwords must match</div>
+          </div>
+
+          <button type="submit" class="btn btn-cc w-100">Create Account</button>
+
+          <div class="text-center mt-3">
+            <a href="{% url 'web_login' %}">Already have an account? Login</a>
+          </div>
+
+          <div id="signupError" class="alert alert-danger mt-3 d-none"></div>
+        </form>
+      </div>
+
+      <div class="cc-panel d-none text-center" id="donePanel">
+        <h4 class="text-success mb-2">Registration Complete!</h4>
+        <p class="text-muted">Now login.</p>
+        <a class="btn btn-cc" href="{% url 'web_login' %}">Go to Login</a>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="{% static 'web/js/api.js' %}"></script>
+  <script src="{% static 'web/js/signup.js' %}"></script>
+
+  <script>
+    // bootstrap validation
+    (function () {
+      const forms = document.querySelectorAll('.needs-validation');
+      Array.from(forms).forEach(form => {
+        form.addEventListener('submit', event => {
+          if (!form.checkValidity()) {
+            event.preventDefault();
+            event.stopPropagation();
+          }
+          form.classList.add('was-validated');
+        }, false);
+      });
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+{% load static %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Clean Charcoal Rwanda</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* Shared Styles for Dashboard Layout */
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: #f8f9fa;
+        }
+        .dashboard-container {
+            min-height: 100vh;
+        }
+        .sidebar {
+            background: linear-gradient(135deg, #1F2A38, #1F2A38);
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .main-content {
+            padding: 30px;
+        }
+        .stat-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            transition: transform 0.3s;
+        }
+        .stat-card:hover {
+            transform: translateY(-3px);
+        }
+        /* Active link highlight color matches sidebar gradient */
+        .list-group-item.active {
+            background-color: rgba(255, 255, 255, 0.1) !important;
+            border-left: 5px solid #F57C00 !important;
+            color: white !important;
+            font-weight: 600;
+        }
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(0,0,0,.1);
+            border-radius: 50%;
+            border-top-color: #007bff;
+            animation: spin 1s ease-in-out infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <div class="row g-0">
+            <div class="col-md-3 sidebar">
+                <div class="text-center mb-4">
+                    <h3>🌱 CleanCharcoal</h3>
+                    <p class="mb-0">Dashboard</p>
+                </div>
+                <div class="list-group">
+                    <a href="{% url 'web_burner_dashboard' %}" class="list-group-item list-group-item-action bg-transparent text-white border-0 active">
+                        <i class="fas fa-tachometer-alt me-2"></i> Dashboard
+                    </a>
+                    <a href="{% url 'web_burner_kilns' %}" class="list-group-item list-group-item-action bg-transparent text-white border-0">
+                        <i class="fas fa-fire me-2"></i> My Kilns
+                    </a>
+                    <a href="{% url 'web_burner_permissions' %}" class="list-group-item list-group-item-action bg-transparent text-white border-0">
+                        <i class="fas fa-file-alt me-2"></i> Permissions
+                    </a>
+                    <a href="{% url 'web_notifications' %}" class="list-group-item list-group-item-action bg-transparent text-white border-0">
+                        <i class="fas fa-bell me-2"></i> Notifications
+                    </a>
+                    <a href="#" onclick="handleLogout(event); return false;" class="list-group-item list-group-item-action bg-transparent text-white border-0 mt-4">
+                        <i class="fas fa-sign-out-alt me-2"></i> Logout
+                    </a>
+                </div>
+            </div>
+            
+            <div class="col-md-9 main-content">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2 id="welcome-message">Welcome to Your Dashboard</h2>
+                    <a href="{% url 'web_burner_permission_new' %}" class="btn btn-primary">
+                        <i class="fas fa-plus me-2"></i> Request Permission
+                    </a>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="stat-card text-center">
+                            <h3 class="text-primary" id="kilns-count">
+                                <span class="loading-spinner"></span>
+                            </h3>
+                            <p class="mb-0">Active Kilns</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="stat-card text-center">
+                            <h3 class="text-success" id="permissions-count">
+                                <span class="loading-spinner"></span>
+                            </h3>
+                            <p class="mb-0">Permission Requests</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="stat-card text-center">
+                            <h3 class="text-warning" id="appointments-count">
+                                <span class="loading-spinner"></span>
+                            </h3>
+                            <p class="mb-0">Appointments</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mt-4">
+                    <div class="col-md-6">
+                        <div class="stat-card">
+                            <h5 class="mb-3"><i class="fas fa-user me-2"></i> Profile Information</h5>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <p class="mb-2"><strong>Name:</strong> <span id="user-name">Loading...</span></p>
+                                    <p class="mb-2"><strong>Email:</strong> <span id="user-email">Loading...</span></p>
+                                    <p class="mb-2"><strong>District:</strong> <span id="user-district">Loading...</span></p>
+                                    <p class="mb-2"><strong>Sector:</strong> <span id="user-sector">Loading...</span></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="stat-card">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5 class="mb-0"><i class="fas fa-bell me-2"></i> Recent Notifications</h5>
+                                <a href="{% url 'web_notifications' %}" class="btn btn-sm btn-outline-primary">View All</a>
+                            </div>
+                            <div id="notifications-list" style="max-height: 300px; overflow-y: auto;">
+                                <div class="text-center py-3">
+                                    <div class="spinner-border spinner-border-sm text-primary" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Helper function to get CSRF token
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        // Handle logout
+        async function handleLogout(event) {
+            event.preventDefault();
+            try {
+                const csrftoken = getCookie('csrftoken');
+                await fetch('/api/auth/logout/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrftoken
+                    },
+                    credentials: 'include'
+                });
+                // Redirect to login page
+                window.location.href = '/login/';
+            } catch (error) {
+                console.error('Logout error:', error);
+                // Still redirect even if API call fails
+                window.location.href = '/login/';
+            }
+        }
+
+        // Fetch dashboard data - Real-time updates
+        async function loadDashboardData() {
+            try {
+                // Get CSRF token from cookie
+                const csrftoken = getCookie('csrftoken');
+                
+                // Get token from localStorage if available
+                const token = localStorage.getItem('token');
+                const headers = {
+                    'Content-Type': 'application/json',
+                };
+                
+                // Add CSRF token for session authentication (if available)
+                if (csrftoken) {
+                    headers['X-CSRFToken'] = csrftoken;
+                }
+                
+                // Add token to headers if available (for API authentication)
+                if (token) {
+                    headers['Authorization'] = `Token ${token}`;
+                }
+                
+                const response = await fetch('/api/burner/dashboard/', {
+                    method: 'GET',
+                    headers: headers,
+                    credentials: 'include' // Include session cookies
+                });
+
+                if (!response.ok) {
+                    // Check if it's a CSRF error
+                    if (response.status === 403) {
+                        const errorData = await response.json().catch(() => ({}));
+                        if (errorData.detail && errorData.detail.includes('CSRF')) {
+                            console.error('CSRF error - refreshing page to get new token');
+                            // Reload page to get fresh CSRF token
+                            window.location.reload();
+                            return;
+                        }
+                    }
+                    if (response.status === 401) {
+                        // Unauthorized - redirect to login
+                        console.error('Authentication failed, redirecting to login');
+                        window.location.href = '/login/';
+                        return;
+                    }
+                    throw new Error('Failed to load dashboard data');
+                }
+
+                const data = await response.json();
+                
+                // Update counts with real-time data
+                document.getElementById('kilns-count').textContent = data.counts.kilns || 0;
+                document.getElementById('permissions-count').textContent = data.counts.permission_requests || 0;
+                document.getElementById('appointments-count').textContent = data.counts.appointments || 0;
+                
+                // Update user info with real-time data
+                const fullName = `${data.user.first_name || ''} ${data.user.last_name || ''}`.trim() || 'User';
+                document.getElementById('welcome-message').textContent = `Welcome, ${fullName}!`;
+                document.getElementById('user-name').textContent = fullName || 'N/A';
+                document.getElementById('user-email').textContent = data.user.email || 'N/A';
+                document.getElementById('user-district').textContent = data.profile.district || 'N/A';
+                document.getElementById('user-sector').textContent = data.profile.sector || 'N/A';
+                
+            } catch (error) {
+                console.error('Error loading dashboard data:', error);
+                // Show error message but keep trying
+                const errorMsg = '<span class="text-danger">Error</span>';
+                if (document.getElementById('kilns-count').innerHTML !== errorMsg) {
+                    document.getElementById('kilns-count').innerHTML = errorMsg;
+                    document.getElementById('permissions-count').innerHTML = errorMsg;
+                    document.getElementById('appointments-count').innerHTML = errorMsg;
+                }
+            }
+        }
+
+        // Load notifications
+        async function loadNotifications() {
+            try {
+                const token = localStorage.getItem('token');
+                const csrftoken = getCookie('csrftoken');
+                const headers = {
+                    'Content-Type': 'application/json',
+                };
+                
+                if (csrftoken) {
+                    headers['X-CSRFToken'] = csrftoken;
+                }
+                if (token) {
+                    headers['Authorization'] = `Token ${token}`;
+                }
+                
+                const response = await fetch('/api/notifications/', {
+                    method: 'GET',
+                    headers: headers,
+                    credentials: 'include'
+                });
+
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        console.log('Unauthorized - user not authenticated');
+                        document.getElementById('notifications-list').innerHTML = '<p class="text-muted text-center mb-0">Please log in to view notifications</p>';
+                        return; // Don't show error if unauthorized
+                    }
+                    const errorData = await response.json().catch(() => ({}));
+                    console.error('Failed to load notifications:', response.status, errorData);
+                    throw new Error(errorData.detail || errorData.error || 'Failed to load notifications');
+                }
+
+                const notifications = await response.json();
+                const container = document.getElementById('notifications-list');
+                
+                if (notifications.length === 0) {
+                    container.innerHTML = '<p class="text-muted text-center mb-0">No notifications yet</p>';
+                    return;
+                }
+
+                // Show only the 5 most recent notifications
+                const recentNotifications = notifications.slice(0, 5);
+                let html = '';
+                
+                recentNotifications.forEach(notif => {
+                    const date = new Date(notif.created_at);
+                    const dateStr = date.toLocaleDateString();
+                    const cardClass = notif.is_read ? '' : 'border-warning bg-light';
+                    const badge = !notif.is_read ? '<span class="badge bg-warning text-dark ms-2">New</span>' : '';
+                    
+                    // Determine icon based on notification type
+                    let icon = 'fa-bell';
+                    let iconColor = 'text-primary';
+                    if (notif.notif_type === 'permission') {
+                        if (notif.title && notif.title.toLowerCase().includes('approved')) {
+                            icon = 'fa-check-circle';
+                            iconColor = 'text-success';
+                        } else if (notif.title && notif.title.toLowerCase().includes('rejected')) {
+                            icon = 'fa-times-circle';
+                            iconColor = 'text-danger';
+                        } else {
+                            icon = 'fa-calendar';
+                            iconColor = 'text-warning';
+                        }
+                    }
+                    
+                    html += `
+                        <div class="card mb-2 ${cardClass}" style="cursor: pointer;" onclick="window.location.href='{% url 'web_notifications' %}'">
+                            <div class="card-body p-2">
+                                <div class="d-flex align-items-start">
+                                    <i class="fas ${icon} ${iconColor} me-2 mt-1"></i>
+                                    <div class="flex-grow-1">
+                                        <h6 class="mb-1" style="font-size: 0.9rem;">${escapeHtml(notif.title || 'Notification')}${badge}</h6>
+                                        <p class="mb-1" style="font-size: 0.85rem; color: #6c757d;">${escapeHtml(notif.message || '').substring(0, 60)}${notif.message && notif.message.length > 60 ? '...' : ''}</p>
+                                        <small class="text-muted" style="font-size: 0.75rem;">${dateStr}</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                container.innerHTML = html;
+            } catch (error) {
+                console.error('Error loading notifications:', error);
+                const container = document.getElementById('notifications-list');
+                if (container) {
+                    container.innerHTML = `
+                        <div class="alert alert-warning text-center mb-0">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            Unable to load notifications. ${error.message || 'Please try again later.'}
+                        </div>
+                    `;
+                }
+            }
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Load data when page loads and set up real-time refresh
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load immediately
+            loadDashboardData();
+            loadNotifications();
+            
+            // Refresh data every 15 seconds for real-time updates
+            setInterval(loadDashboardData, 15000);
+            setInterval(loadNotifications, 30000);
+        });
+    </script>
+</body>
+</html>

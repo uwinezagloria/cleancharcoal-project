@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+{% load static %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Activity Logs - Clean Charcoal Rwanda Admin</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root { --figma-dark-navy: #1F2A38; --figma-orange: #FF5722; }
+        body { font-family: 'Roboto', sans-serif; background: #f8f9fa; }
+        .dashboard-container { min-height: 100vh; }
+        .sidebar { background: var(--figma-dark-navy); color: white; min-height: 100vh; padding: 20px; }
+        .main-content { padding: 30px; }
+        .log-card { background: white; border-radius: 10px; padding: 30px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .list-group-item.active { background-color: rgba(255, 255, 255, 0.1) !important; border-left: 5px solid var(--figma-orange) !important; color: white !important; font-weight: 600; }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <div class="row g-0">
+            <div class="col-md-3 sidebar">
+                <div class="text-center mb-4">
+                    <h3>⚙️ System Admin</h3>
+                    <p class="mb-0">Global Oversight</p>
+                </div>
+                <div class="list-group">
+                    <a href="admin-dashboard.html" class="list-group-item list-group-item-action bg-transparent text-white border-0">
+                        <i class="fas fa-database me-2"></i> System Overview
+                    </a>
+                    <a href="admin-users.html" class="list-group-item list-group-item-action bg-transparent text-white border-0">
+                        <i class="fas fa-users-cog me-2"></i> User Management
+                    </a>
+                    <a href="admin-settings.html" class="list-group-item list-group-item-action bg-transparent text-white border-0">
+                        <i class="fas fa-sliders-h me-2"></i> Global Settings
+                    </a>
+                    <a href="admin-logs.html" class="list-group-item list-group-item-action bg-transparent text-white border-0 active">
+                        <i class="fas fa-history me-2"></i> Activity Logs
+                    </a>
+                    <a href="logout.html" class="list-group-item list-group-item-action bg-transparent text-white border-0 mt-4">
+                        <i class="fas fa-sign-out-alt me-2"></i> Logout
+                    </a>
+                </div>
+            </div>
+            
+            <div class="col-md-9 main-content">
+                <h2 class="text-dark mb-4"><i class="fas fa-history me-2"></i> System Activity Logs</h2>
+                
+                <div class="log-card">
+                    <h4 class="text-dark-navy mb-3">Recent Critical Actions</h4>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span class="text-danger"><i class="fas fa-exclamation-circle me-2"></i> User DELETION: Producer G. Murenzi</span>
+                            <small class="text-muted">Admin@cleancharcoal.rw | 2025-12-14 10:30 AM</small>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span class="text-warning"><i class="fas fa-user-edit me-2"></i> User ROLE CHANGE: P. Mutoni (Producer -> Leader)</span>
+                            <small class="text-muted">Admin@cleancharcoal.rw | 2025-12-13 4:15 PM</small>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span class="text-success"><i class="fas fa-check-circle me-2"></i> New Permit Approved: PER-4604</span>
+                            <small class="text-muted">Leader@Gasabo.rw | 2025-12-13 9:00 AM</small>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="text-center mt-5">
+                    <a href="admin-dashboard.html" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-2"></i> Back to Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
