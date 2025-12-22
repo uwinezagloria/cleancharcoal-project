@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+{% load static %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leader Dashboard - Clean Charcoal Rwanda</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* Shared Styles based on existing dashboard files */
+        body { font-family: 'Roboto', sans-serif; background: #f8f9fa; }
+        .dashboard-container { min-height: 100vh; }
+        .sidebar { background: linear-gradient(135deg, #1F2A38, #1F2A38); color: white; min-height: 100vh; padding: 20px; }
+        .main-content { padding: 30px; }
+        .stat-card { 
+            background: white; 
+            border-radius: 10px; 
+            padding: 20px; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1); 
+            margin-bottom: 20px; 
+            transition: transform 0.3s;
+        }
+        .stat-card:hover {
+            transform: translateY(-3px);
+        }
+        
+        /* Active link highlight color matches sidebar gradient */
+        .list-group-item.active {
+            background-color: rgba(255, 255, 255, 0.1) !important;
+            border-left: 5px solid #F57C00 !important;
+            color: white !important;
+            font-weight: 600;
+        }
+
+        /* Leader-specific colors */
+        .text-pending { color: #ffc107 !important; }
+        .text-approved-kilns { color: #198754 !important; }
+        .text-active-emissions { color: #dc3545 !important; }
+        .review-card { border-left: 5px solid #F57C00; }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <div class="row g-0">
+            <div class="col-md-3 sidebar">
+                <div class="text-center mb-4">
+                    <h3>🌱 CleanCharcoal</h3>
+                    <p class="mb-0">Leader Dashboard</p>
+                </div>
+                <div class="list-group">
+                    <a href="{% url 'web_leader_dashboard' %}" class="list-group-item list-group-item-action bg-transparent text-white border-0 active">
+                        <i class="fas fa-home me-2"></i> Overview
+                    </a>
+                    <a href="{% url 'web_leader_review' %}" class="list-group-item list-group-item-action bg-transparent text-white border-0">
+                        <i class="fas fa-list-check me-2"></i> Review Permits 
+                        <span class="badge bg-warning text-dark float-end" id="pendingCount">-</span>
+                    </a>
+                    <a href="#" onclick="handleLogout(event); return false;" class="list-group-item list-group-item-action bg-transparent text-white border-0 mt-4">
+                        <i class="fas fa-sign-out-alt me-2"></i> Logout
+                    </a>
+                </div>
+            </div>
+            
+            <div class="col-md-9 main-content">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2 class="text-dark" id="welcomeHeader"><i class="fas fa-tachometer-alt me-2"></i> Welcome, Leader!</h2>
+                    <a href="{% url 'web_leader_review' %}" class="btn btn-warning fw-bold" id="reviewButton">
+                        <i class="fas fa-magnifying-glass me-2"></i> Review Pending Permits (<span id="reviewButtonCount">-</span>)
+                    </a>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="stat-card text-center">
+                            <h3 class="text-pending" id="pendingApplications">-</h3>
+                            <p class="mb-0 fw-bold">Pending Applications</p>
+                            <small class="text-muted">Requires Immediate Review</small>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="stat-card text-center">
+                            <h3 class="text-approved-kilns" id="approvedPermissions">-</h3>
+                            <p class="mb-0 fw-bold">Approved Permits</p>
+                            <small class="text-muted">Total Approved Permissions</small>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="stat-card text-center">
+                            <h3 class="text-dark-navy" id="totalPermissions">-</h3>
+                            <p class="mb-0 fw-bold">Total Permissions</p>
+                            <small class="text-muted">All Permission Requests</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row mt-3">
+                    <div class="col-md-4">
+                        <div class="stat-card text-center">
+                            <h3 class="text-dark-navy" id="totalAppointments">-</h3>
+                            <p class="mb-0 fw-bold">Appointments</p>
+                            <small class="text-muted">Total Scheduled</small>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="stat-card text-center">
+                            <h3 class="text-pending" id="pendingAppointments">-</h3>
+                            <p class="mb-0 fw-bold">Pending Appointments</p>
+                            <small class="text-muted">Awaiting Decision</small>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="stat-card text-center">
+                            <h3 class="text-dark-navy" id="totalReschedules">-</h3>
+                            <p class="mb-0 fw-bold">Reschedule Requests</p>
+                            <small class="text-muted">Total Reschedules</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mt-4">
+                    <div class="col-md-12">
+                        <div class="stat-card">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5 class="mb-0"><i class="fas fa-bell me-2"></i> Recent Notifications</h5>
+                                <button class="btn btn-sm btn-outline-primary" onclick="loadNotifications()">
+                                    <i class="fas fa-sync me-1"></i> Refresh
+                                </button>
+                            </div>
+                            <div id="notifications-list" style="max-height: 350px; overflow-y: auto;">
+                                <div class="text-center py-3">
+                                    <div class="spinner-border spinner-border-sm text-primary" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Helper function to get CSRF token
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        // Handle logout
+        async function handleLogout(event) {
+            event.preventDefault();
+            try {
+                const csrftoken = getCookie('csrftoken');
+                await fetch('/api/auth/logout/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrftoken
+                    },
+                    credentials: 'include'
+                });
+                window.location.href = '/login/';
+            } catch (error) {
+                console.error('Logout error:', error);
+                window.location.href = '/login/';
+            }
+        }
+
+        // Load dashboard data
+        async function loadDashboardData() {
+            try {
+                console.log('Loading leader dashboard data...');
+                const token = localStorage.getItem('token');
+                const csrftoken = getCookie('csrftoken');
+                const headers = {
+                    'Content-Type': 'application/json',
+                };
+                
+                if (csrftoken) {
+                    headers['X-CSRFToken'] = csrftoken;
+                }
+                if (token) {
+                    headers['Authorization'] = `Token ${token}`;
+                }
+                
+                const response = await fetch('/api/leader/dashboard/', {
+                    method: 'GET',
+                    headers: headers,
+                    credentials: 'include'
+                });
+
+                console.log('Response status:', response.status);
+
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        window.location.href = '/login/';
+                        return;
+                    }
+                    throw new Error('Failed to load dashboard data');
+                }
+
+                const data = await response.json();
+                console.log('Dashboard data received:', data);
+                
+                if (!data || !data.counts) {
+                    console.error('Invalid data format:', data);
+                    return;
+                }
+
+                const counts = data.counts;
+                const leader = data.leader || {};
+
+                // Update welcome header
+                const leaderName = `${leader.first_name || ''} ${leader.last_name || ''}`.trim() || leader.email || 'Leader';
+                document.getElementById('welcomeHeader').innerHTML = `<i class="fas fa-tachometer-alt me-2"></i> Welcome, ${leaderName}!`;
+
+                // Update all counts
+                const updateElement = (id, value) => {
+                    const element = document.getElementById(id);
+                    if (element) {
+                        element.textContent = value !== undefined ? value : 0;
+                    }
+                };
+
+                updateElement('pendingApplications', counts.permission_pending || counts.permission_submitted);
+                updateElement('approvedPermissions', counts.permission_approved);
+                updateElement('totalPermissions', counts.permission_total);
+                updateElement('totalAppointments', counts.appointments_total);
+                updateElement('pendingAppointments', counts.appointments_pending);
+                updateElement('totalReschedules', counts.reschedules_total);
+                
+                // Update badge and button
+                const pendingCount = counts.permission_pending || counts.permission_submitted || 0;
+                updateElement('pendingCount', pendingCount);
+                updateElement('reviewButtonCount', pendingCount);
+
+                console.log('Dashboard data updated successfully');
+
+            } catch (error) {
+                console.error('Error loading dashboard data:', error);
+            }
+        }
+
+        // Load notifications
+        async function loadNotifications() {
+            try {
+                const token = localStorage.getItem('token');
+                const csrftoken = getCookie('csrftoken');
+                const headers = {
+                    'Content-Type': 'application/json',
+                };
+                
+                if (csrftoken) {
+                    headers['X-CSRFToken'] = csrftoken;
+                }
+                if (token) {
+                    headers['Authorization'] = `Token ${token}`;
+                }
+                
+                const response = await fetch('/api/notifications/', {
+                    method: 'GET',
+                    headers: headers,
+                    credentials: 'include'
+                });
+
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        return; // Don't show error if unauthorized
+                    }
+                    throw new Error('Failed to load notifications');
+                }
+
+                const notifications = await response.json();
+                const container = document.getElementById('notifications-list');
+                
+                if (notifications.length === 0) {
+                    container.innerHTML = '<p class="text-muted text-center mb-0">No notifications yet</p>';
+                    return;
+                }
+
+                // Show only the 5 most recent notifications
+                const recentNotifications = notifications.slice(0, 5);
+                let html = '';
+                
+                recentNotifications.forEach(notif => {
+                    const date = new Date(notif.created_at);
+                    const dateStr = date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                    const cardClass = notif.is_read ? '' : 'border-warning bg-light';
+                    const badge = !notif.is_read ? '<span class="badge bg-warning text-dark ms-2">New</span>' : '';
+                    
+                    // Determine icon based on notification type
+                    let icon = 'fa-bell';
+                    let iconColor = 'text-primary';
+                    if (notif.notif_type === 'permission') {
+                        if (notif.title && notif.title.toLowerCase().includes('new')) {
+                            icon = 'fa-file-alt';
+                            iconColor = 'text-info';
+                        } else if (notif.title && notif.title.toLowerCase().includes('approved')) {
+                            icon = 'fa-check-circle';
+                            iconColor = 'text-success';
+                        } else if (notif.title && notif.title.toLowerCase().includes('rejected')) {
+                            icon = 'fa-times-circle';
+                            iconColor = 'text-danger';
+                        } else {
+                            icon = 'fa-calendar';
+                            iconColor = 'text-warning';
+                        }
+                    }
+                    
+                    html += `
+                        <div class="card mb-2 ${cardClass}" style="cursor: pointer;" onclick="window.location.href='{% url 'web_leader_review' %}'">
+                            <div class="card-body p-3">
+                                <div class="d-flex align-items-start">
+                                    <i class="fas ${icon} ${iconColor} me-3 mt-1" style="font-size: 1.2rem;"></i>
+                                    <div class="flex-grow-1">
+                                        <h6 class="mb-1">${escapeHtml(notif.title || 'Notification')}${badge}</h6>
+                                        <p class="mb-1 text-muted" style="font-size: 0.9rem;">${escapeHtml(notif.message || '')}</p>
+                                        <small class="text-muted">${dateStr}</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                container.innerHTML = html;
+            } catch (error) {
+                console.error('Error loading notifications:', error);
+                document.getElementById('notifications-list').innerHTML = 
+                    '<p class="text-muted text-center mb-0">Unable to load notifications</p>';
+            }
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Load data on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Leader dashboard page loaded');
+            loadDashboardData();
+            loadNotifications();
+            // Refresh every 30 seconds
+            setInterval(loadDashboardData, 30000);
+            setInterval(loadNotifications, 30000);
+        });
+        
+        // Also try loading if DOMContentLoaded already fired
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', loadDashboardData);
+            document.addEventListener('DOMContentLoaded', loadNotifications);
+        } else {
+            loadDashboardData();
+            loadNotifications();
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,392 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clean Charcoal Rwanda - Eco-friendly Charcoal Production</title>
+    <meta name="description" content="A smart system that promotes eco-friendly charcoal production with embedded sensors and connects communities for responsible burning permissions.">
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'web/assets/css/style.css' %}">
+    <link rel="icon" type="image/x-icon" href="{% static 'web/assets/images/favicon.ico' %}">
+    
+    <style>
+        /* --- FIGMA COLOR MATCHING STYLES --- */
+        :root {
+            --figma-green: #2E7D32; 
+            --figma-orange: #FF5722; /* Primary action button color */
+            --figma-dark-navy: #1F2A38; /* Background for 'Who We Are' and Footer */
+            --figma-light-gray: #F8F9FA; /* Card/Testimonial background */
+            --figma-light-blue: #D0EEFF; /* Permission section background */
+            --figma-text-dark: #212121;
+        }
+
+        /* Global button primary color */
+        .btn-orange, .application-btn, .service-btn {
+            background-color: var(--figma-orange) !important;
+            border-color: var(--figma-orange) !important;
+            color: white !important;
+        }
+        .btn-orange:hover, .application-btn:hover, .service-btn:hover {
+            background-color: #E64A19 !important; /* Slightly darker orange */
+        }
+        
+        /* Navbar overrides */
+        .logo-text, .logo-rwanda {
+            color: var(--figma-text-dark) !important;
+        }
+        .nav-signup {
+            background-color: var(--figma-orange) !important;
+            border-color: var(--figma-orange) !important;
+        }
+        .nav-login {
+            border: 2px solid var(--figma-orange) !important;
+            color: var(--figma-orange) !important;
+        }
+        .nav-login:hover {
+            background-color: var(--figma-orange) !important;
+            color: white !important;
+        }
+        
+        /* WHO WE ARE (Dark Navy background) */
+        .who-section {
+            background-color: var(--figma-dark-navy) !important;
+            padding: 50px 0;
+            color: white;
+        }
+        .who-title {
+            color: white !important;
+        }
+        .who-title::after {
+            background-color: var(--figma-orange) !important;
+        }
+        .who-text {
+            color: rgba(255, 255, 255, 0.8) !important;
+        }
+        
+        /* REMOVED STATS BAR STYLES (for completeness, although the HTML is removed) */
+        .stats-container {
+            display: none !important;
+        }
+
+        /* APPLICATION / PERMISSION SECTION (Light Blue background) */
+        .application-section {
+            background-color: var(--figma-light-blue) !important;
+        }
+        .application-title, .list-heading {
+            color: var(--figma-dark-navy) !important;
+        }
+        
+        /* SERVICES WE PROVIDE STYLES */
+        .services-section {
+            background-color: var(--figma-light-gray) !important;
+        }
+        .services-title {
+            color: var(--figma-orange) !important; /* Set to Orange */
+        }
+        .services-cta {
+            background: linear-gradient(135deg, #1F2A38, #101820) !important; 
+        }
+        .service-card {
+            background: white !important;
+        }
+        /* SERVICE ICON BACKGROUND COLOR CHANGED TO ORANGE */
+        .service-icon {
+             background: var(--figma-orange) !important;
+             color: white; 
+             border-radius: 50%;
+             width: 40px;
+             height: 40px;
+             display: flex;
+             justify-content: center;
+             align-items: center;
+             margin-bottom: 15px;
+        }
+        
+        /* TESTIMONIALS (White background) */
+        .testimonials-section {
+            background-color: white !important;
+        }
+        .testimonial-card {
+            background: var(--figma-light-gray) !important; 
+        }
+
+        /* FOOTER (Dark Navy background) */
+        .footer {
+            background: var(--figma-dark-navy) !important;
+            color: white !important;
+        }
+        .footer-logo {
+            color: white !important;
+        }
+        .footer-logo .logo-rwanda {
+            color: var(--figma-orange) !important;
+        }
+        .footer-subscribe-btn {
+            background: var(--figma-orange) !important;
+        }
+        .footer-legal-box a {
+            color: rgba(255, 255, 255, 0.7) !important;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-lg custom-nav fixed-top">
+            <div class="container nav-inner">
+                <a class="navbar-brand" href="{% url 'web_home' %}">
+                    <div class="logo-container">
+                        <span class="logo-icon">🌱</span>
+                        <span class="logo-text">CleanCharcoal<span class="logo-rwanda">Rwanda</span></span>
+                    </div>
+                </a>
+                
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav mx-auto">
+                        <li class="nav-item"><a class="nav-link nav-link-lg active" href="#home">Home</a></li>
+                        <li class="nav-item"><a class="nav-link nav-link-lg" href="#about">About Us</a></li>
+                        <li class="nav-item"><a class="nav-link nav-link-lg" href="#services">Services</a></li>
+                        <li class="nav-item"><a class="nav-link nav-link-lg" href="#application">Permission</a></li>
+                        <li class="nav-item"><a class="nav-link nav-link-lg" href="#contact">Contact Us</a></li>
+                    </ul>
+
+                    <div class="d-flex gap-3">
+                        <a class="btn nav-signup" href="{% url 'web_signup' %}">Sign Up</a>
+                        <a class="btn nav-login" href="{% url 'web_login' %}">Login</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <section class="hero-section" id="home">
+        <div class="hero-image-container">
+            <div class="hero-overlay" style="background: linear-gradient(to bottom, rgba(31, 42, 56, 0.4), rgba(31, 42, 56, 0.7));"></div> 
+            <img src="{% static 'web/assets/images/hero.jpg' %}" class="hero-image" alt="Clean Charcoal Production in Rwanda" />
+            <div class="hero-gradient"></div>
+        </div>
+
+        <div class="container hero-content text-center">
+            <h1 class="hero-title">Clean Charcoal Rwanda</h1>
+            <p class="hero-subtext">
+                A smart system that promotes eco-friendly charcoal production with embedded sensors —
+                and connects communities to request and approve burning permissions responsibly.
+            </p>
+
+            <div class="hero-buttons">
+                <a href="#about" class="btn btn-orange px-4 py-3 fw-bold hero-btn">Learn More</a>
+                <a href="{% url 'web_signup' %}" class="btn btn-outline-light px-4 py-3 fw-bold ms-3">Get Started Free</a>
+            </div>
+            
+        </div>
+    </section>
+
+    <section class="who-section" id="about">
+        <div class="container text-center">
+            <h2 class="who-title">Who We Are</h2>
+            
+            <div class="row justify-content-center">
+                <div class="col-lg-10">
+                    <p class="who-text">
+                        We are a passionate team of young innovators dedicated to transforming the traditional charcoal
+                        process into a cleaner, safer, and more efficient system. By combining embedded sensors, smart
+                        technology, and community-driven tools, we aim to protect forests, reduce harmful smoke, and support
+                        local livelihoods.
+                    </p>
+                </div>
+            </div>
+            
+            </div>
+    </section>
+
+    <section class="application-section" id="application">
+        <div class="container">
+            <div class="row application-row align-items-center">
+                <div class="col-lg-6 application-left">
+                    <h3 class="application-title">
+                        Connecting Communities for<br>
+                        <span class="highlight-text">Greener Tomorrow.</span>
+                    </h3>
+
+                    <p class="application-text">
+                        CleanCharcoal is a platform that digitizes the permit process. We provide a simple, transparent,
+                        and official channel for charcoal producers to get approval from their community leaders.
+                    </p>
+
+                    <ul class="application-list">
+                        <li>
+                            <div class="list-icon">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div>
+                                <div class="list-heading">Apply in Minutes</div>
+                                <div class="list-body">Producers submit applications directly through the app.</div>
+                            </div>
+                        </li>
+
+                        <li>
+                            <div class="list-icon">
+                                <i class="fas fa-user-check"></i>
+                            </div>
+                            <div>
+                                <div class="list-heading">Leaders Review &amp; Approve</div>
+                                <div class="list-body">Community leaders review requests with full transparency.</div>
+                            </div>
+                        </li>
+
+                        <li>
+                            <div class="list-icon">
+                                <i class="fas fa-fire"></i>
+                            </div>
+                            <div>
+                                <div class="list-heading">Burn Responsibly</div>
+                                <div class="list-body">
+                                    Work with an official permit, ensuring sustainability and compliance.
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+
+                    <div class="application-buttons">
+                        <a href="{% url 'web_login' %}" class="btn application-btn">Ask Permission</a> 
+                    </div>
+                </div>
+
+                <div class="col-lg-6 application-right">
+                    <div class="application-image-container">
+                        <img src="{% static 'web/assets/images/application.jpg' %}" class="application-image" alt="Application Form">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="services-section" id="services">
+        <div class="container">
+            <h2 class="services-title text-center">Services We Provide</h2>
+
+            <div class="services-grid">
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-microchip"></i>
+                    </div>
+                    <h4 class="service-heading">Sensors Monitor</h4>
+                    <p class="service-body">
+                        Embedded sensors inside the charcoal kiln track temperature, smoke, and humidity in real time.
+                        This ensures the burning process stays efficient and safe.
+                    </p>
+                    <button class="btn service-btn" onclick="showServiceDetails('sensors')">Read More</button>
+                </div>
+
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-bell"></i>
+                    </div>
+                    <h4 class="service-heading">Alerts &amp; Recommendations</h4>
+                    <p class="service-body">
+                        The system provides instant alerts if conditions are unsafe or if adjustments are needed, helping
+                        prevent accidents and reduce smoke.
+                    </p>
+                    <button class="btn service-btn" onclick="showServiceDetails('alerts')">Read More</button>
+                </div>
+
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-file-alt"></i>
+                    </div>
+                    <h4 class="service-heading">Permission Requests</h4>
+                    <p class="service-body">
+                        Citizens can easily request permission to burn charcoal through our platform. Community leaders
+                        review each request to ensure it is legal, fair, and environmentally responsible.
+                    </p>
+                    <a href="{% url 'web_login' %}" class="btn service-btn">Ask Permission</a>
+                </div>
+
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h4 class="service-heading">Data Sent to Dashboard</h4>
+                    <p class="service-body">
+                        Sensor data is sent to our web dashboard, where leaders can view live information about their
+                        kilns, monitor performance, and detect issues early.
+                    </p>
+                    <button class="btn service-btn" onclick="showServiceDetails('dashboard')">Read More</button>
+                </div>
+            </div>
+            
+            <div class="services-cta text-center mt-5">
+                <h3>Ready to Transform Your Charcoal Production?</h3>
+                <p class="cta-text">Join hundreds of producers already using our system</p>
+                <a href="{% url 'web_signup' %}" class="btn btn-orange btn-lg px-5 py-3">Get Started Today</a>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer" id="contact">
+        <div class="container footer-top">
+
+            <div class="footer-col">
+                <h4 class="footer-title">QUICK LINKS</h4>
+                <ul class="footer-links">
+                    <li><a href="{% url 'web_home' %}#home">Home</a></li>
+                    <li><a href="{% url 'web_home' %}#about">About Us</a></li>
+                    <li><a href="{% url 'web_home' %}#services">Services</a></li>
+                    <li><a href="{% url 'web_home' %}#application">Permission System</a></li>
+                    <li><a href="{% url 'web_home' %}#contact">Contact Us</a></li>
+                    <li><a href="{% url 'web_signup' %}">Sign Up</a></li>
+                    <li><a href="{% url 'web_login' %}">Login</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-col">
+                <h4 class="footer-title">SOCIAL MEDIA</h4>
+                <p class="footer-subtext">Stay connected, check our social media!</p>
+
+                <div class="footer-icons">
+                    <a href="#" class="icon-box"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" class="icon-box"><i class="fab fa-linkedin-in"></i></a>
+                    <a href="#" class="icon-box"><i class="fab fa-twitter"></i></a> 
+                    <a href="#" class="icon-box"><i class="fab fa-instagram"></i></a>
+                    <a href="#" class="icon-box"><i class="fab fa-youtube"></i></a>
+                </div>
+                
+            </div>
+
+            <div class="footer-col">
+                <h4 class="footer-title">NEWSLETTER</h4>
+                <p class="footer-subtext">Subscribe to get updates on our latest features and services</p>
+                <div class="newsletter-form">
+                    <input type="email" placeholder="Your Email Address" class="footer-input" id="newsletterEmail">
+                    <button class="footer-subscribe-btn" onclick="subscribeNewsletter()">Subscribe</button>
+                </div>
+                <p class="newsletter-note">We respect your privacy. Unsubscribe at any time.</p>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <p>© 2025 Clean Charcoal Rwanda. All Rights Reserved.</p>
+
+            <div class="footer-legal-box">
+                <a href="#" onclick="showPrivacyPolicy()">Privacy Policy</a>
+                <span>|</span>
+                <a href="#" onclick="showTermsConditions()">Terms & Conditions</a>
+            </div>
+        </div>
+    </footer>
+
+    <button id="backToTop" class="back-to-top">
+        <i class="fas fa-chevron-up"></i>
+    </button>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{% static 'web/js/main.js' %}"></script>
+</body>
+</html>

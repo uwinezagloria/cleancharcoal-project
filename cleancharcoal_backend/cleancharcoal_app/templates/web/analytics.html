@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+{% load static %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics - Clean Charcoal Rwanda</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body { font-family: 'Roboto', sans-serif; background: #f8f9fa; }
+        .dashboard-container { min-height: 100vh; }
+        .sidebar { background: linear-gradient(135deg, #1F2A38, #1F2A38); color: white; min-height: 100vh; padding: 20px; }
+        .main-content { padding: 30px; }
+        .chart-container { background: white; border-radius: 10px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        /* Active link highlight style */
+        .list-group-item.active {
+            background-color: rgba(255, 255, 255, 0.1) !important;
+            border-left: 5px solid #F57C00 !important;
+            color: white !important;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <div class="row g-0">
+            <div class="col-md-3 sidebar">
+                <div class="text-center mb-4">
+                    <h3>🌱 CleanCharcoal</h3>
+                    <p class="mb-0">Dashboard</p>
+                </div>
+                <div class="list-group">
+                    <a href="dashboard.html" class="list-group-item list-group-item-action bg-transparent text-white border-0">
+                        <i class="fas fa-tachometer-alt me-2"></i> Dashboard
+                    </a>
+                    <a href="my-kilns.html" class="list-group-item list-group-item-action bg-transparent text-white border-0">
+                        <i class="fas fa-fire me-2"></i> My Kilns
+                    </a>
+                    <a href="permissions.html" class="list-group-item list-group-item-action bg-transparent text-white border-0">
+                        <i class="fas fa-file-alt me-2"></i> Permissions
+                    </a>
+                    <a href="analytics.html" class="list-group-item list-group-item-action bg-transparent text-white border-0 active">
+                        <i class="fas fa-chart-line me-2"></i> Analytics
+                    </a>
+                    <a href="settings.html" class="list-group-item list-group-item-action bg-transparent text-white border-0">
+                        <i class="fas fa-cog me-2"></i> Settings
+                    </a>
+                    <a href="logout.html" class="list-group-item list-group-item-action bg-transparent text-white border-0 mt-4">
+                        <i class="fas fa-sign-out-alt me-2"></i> Logout
+                    </a>
+                </div>
+            </div>
+            
+            <div class="col-md-9 main-content">
+                <h2 class="mb-4 text-dark"><i class="fas fa-chart-line me-2"></i> Production Analytics</h2>
+                
+                <div class="alert alert-warning">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Analytics require live sensor data from the backend.
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="chart-container">
+                            <h5 class="mb-3 text-primary">Kiln Temperature Over Time</h5>
+                            <img src="https://via.placeholder.com/400x250/2E7D32/FFFFFF?text=Temperature+Chart" class="img-fluid" alt="Temperature Chart Placeholder">
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="chart-container">
+                            <h5 class="mb-3 text-primary">Gas emissions</h5>
+                            <img src="https://via.placeholder.com/400x250/F57C00/FFFFFF?text=Emissions+Chart+Placeholder" class="img-fluid" alt="Emissions Chart Placeholder">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

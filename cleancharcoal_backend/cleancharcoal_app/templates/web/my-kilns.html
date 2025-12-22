@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+{% load static %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Kilns - Clean Charcoal Rwanda</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* Shared Dashboard Layout Styles */
+        body { font-family: 'Roboto', sans-serif; background: #f8f9fa; }
+        .dashboard-container { min-height: 100vh; }
+        .sidebar { background: linear-gradient(135deg, #1F2A38, #1F2A38); color: white; min-height: 100vh; padding: 20px; }
+        .main-content { padding: 30px; }
+        .kiln-card { background: white; border-radius: 10px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .status-badge-burning { background-color: #ffc107; color: #343a40; }
+        .status-badge-idle { background-color: #6c757d; color: white; }
+        
+        /* Active link highlight (using the style defined in dashboard.html's CSS) */
+        .list-group-item.active {
+            background-color: rgba(255, 255, 255, 0.1) !important;
+            border-left: 5px solid #F57C00 !important;
+            color: white !important;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <div class="row g-0">
+            <div class="col-md-3 sidebar">
+                <div class="text-center mb-4">
+                    <h3>🌱 CleanCharcoal</h3>
+                    <p class="mb-0">Dashboard</p>
+                </div>
+                <div class="list-group">
+                    <a href="{% url 'web_burner_dashboard' %}" class="list-group-item list-group-item-action bg-transparent text-white border-0">
+                        <i class="fas fa-tachometer-alt me-2"></i> Dashboard
+                    </a>
+                    <a href="{% url 'web_burner_kilns' %}" class="list-group-item list-group-item-action bg-transparent text-white border-0 active">
+                        <i class="fas fa-fire me-2"></i> My Kilns
+                    </a>
+                    <a href="{% url 'web_burner_permissions' %}" class="list-group-item list-group-item-action bg-transparent text-white border-0">
+                        <i class="fas fa-file-alt me-2"></i> Permissions
+                    </a>
+                    <a href="{% url 'web_notifications' %}" class="list-group-item list-group-item-action bg-transparent text-white border-0">
+                        <i class="fas fa-bell me-2"></i> Notifications
+                    </a>
+                    <a href="#" onclick="handleLogout(event); return false;" class="list-group-item list-group-item-action bg-transparent text-white border-0 mt-4">
+                        <i class="fas fa-sign-out-alt me-2"></i> Logout
+                    </a>
+                </div>
+            </div>
+            
+            <div class="col-md-9 main-content">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2 class="text-dark"><i class="fas fa-fire me-2"></i> My Kilns</h2>
+                </div>
+                
+                <div id="kilns-container">
+                    <div class="text-center py-5">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-3 text-muted">Loading kilns...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Helper function to get CSRF token
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        // Handle logout
+        async function handleLogout(event) {
+            event.preventDefault();
+            try {
+                const csrftoken = getCookie('csrftoken');
+                await fetch('/api/auth/logout/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrftoken
+                    },
+                    credentials: 'include'
+                });
+                window.location.href = '/login/';
+            } catch (error) {
+                console.error('Logout error:', error);
+                window.location.href = '/login/';
+            }
+        }
+
+        // Load kilns data - Real-time updates
+        async function loadKilns() {
+            try {
+                const token = localStorage.getItem('token');
+                const csrftoken = getCookie('csrftoken');
+                const headers = {
+                    'Content-Type': 'application/json',
+                };
+                
+                if (csrftoken) {
+                    headers['X-CSRFToken'] = csrftoken;
+                }
+                if (token) {
+                    headers['Authorization'] = `Token ${token}`;
+                }
+                
+                const response = await fetch('/api/burner/kilns/', {
+                    method: 'GET',
+                    headers: headers,
+                    credentials: 'include'
+                });
+
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        window.location.href = '/login/';
+                        return;
+                    }
+                    throw new Error('Failed to load kilns');
+                }
+
+                const kilns = await response.json();
+                const container = document.getElementById('kilns-container');
+                
+                if (kilns.length === 0) {
+                    container.innerHTML = `
+                        <div class="text-center py-5">
+                            <i class="fas fa-fire fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">No kilns yet. Kilns are created automatically when you request a permission.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                let html = '<div class="row">';
+                kilns.forEach(kiln => {
+                    const location = [
+                        kiln.work_district,
+                        kiln.work_sector,
+                        kiln.work_cell,
+                        kiln.work_village
+                    ].filter(Boolean).join(', ') || kiln.location_description || 'Location not specified';
+                    
+                    const createdDate = new Date(kiln.created_at);
+                    const dateStr = createdDate.toLocaleDateString();
+                    
+                    html += `
+                        <div class="col-md-6 mb-4">
+                            <div class="kiln-card">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <h5>Kiln #${kiln.id}</h5>
+                                </div>
+                                <p class="text-muted mb-1"><i class="fas fa-map-marker-alt me-2"></i>${location}</p>
+                                ${kiln.gps_coordinates ? `<p class="text-muted mb-1"><small>GPS: ${kiln.gps_coordinates}</small></p>` : ''}
+                                <p class="text-muted mb-3"><small>Created: ${dateStr}</small></p>
+                            </div>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+                container.innerHTML = html;
+            } catch (error) {
+                console.error('Error loading kilns:', error);
+                document.getElementById('kilns-container').innerHTML = 
+                    '<div class="alert alert-danger">Failed to load kilns. Please try again later.</div>';
+            }
+        }
+
+        // Load kilns on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadKilns();
+            // Refresh every 30 seconds
+            setInterval(loadKilns, 30000);
+        });
+    </script>
+</body>
+</html>

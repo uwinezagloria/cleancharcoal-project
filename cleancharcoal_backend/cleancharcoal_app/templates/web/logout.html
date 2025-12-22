@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+{% load static %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logout - Clean Charcoal Rwanda</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-green: #2E7D32;
+            --primary-orange: #F57C00;
+            --primary-dark: #1B5E20;
+        }
+        
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #1F2A38 0%, #1F2A38 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .logout-card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+            animation: fadeIn 0.6s ease;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .logo {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-dark);
+            margin-bottom: 20px;
+            text-decoration: none;
+        }
+        
+        .logo-rwanda {
+            color: var(--primary-orange);
+        }
+        
+        .logout-icon {
+            font-size: 4rem;
+            color: var(--primary-green);
+            margin-bottom: 20px;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        h2 {
+            color: var(--primary-dark);
+            margin-bottom: 15px;
+        }
+        
+        p {
+            color: #6c757d;
+            margin-bottom: 30px;
+        }
+        
+        .btn-logout {
+            background-color: var(--primary-green);
+            border-color: var(--primary-green);
+            color: white;
+            padding: 12px 30px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-logout:hover {
+            background-color: var(--primary-dark);
+            border-color: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .btn-cancel {
+            background-color: transparent;
+            border-color: #6c757d;
+            color: #6c757d;
+            padding: 12px 30px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-cancel:hover {
+            background-color: #6c757d;
+            border-color: #6c757d;
+            color: white;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+        
+        .user-info {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: left;
+        }
+        
+        .user-info h6 {
+            color: var(--primary-dark);
+            margin-bottom: 10px;
+            border-bottom: 2px solid var(--primary-light);
+            padding-bottom: 5px;
+        }
+        
+        .user-detail {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .user-detail:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        
+        .detail-label {
+            color: #6c757d;
+        }
+        
+        .detail-value {
+            font-weight: 600;
+            color: var(--primary-dark);
+        }
+        
+        .login-link {
+            margin-top: 20px;
+            color: #6c757d;
+        }
+        
+        .login-link a {
+            color: var(--primary-green);
+            text-decoration: none;
+            font-weight: 600;
+        }
+        
+        .login-link a:hover {
+            text-decoration: underline;
+        }
+        
+        @media (max-width: 576px) {
+            .logout-card {
+                padding: 25px;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .logout-icon {
+                font-size: 3rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="logout-card">
+        <a href="index.html" class="logo">
+            <span>🌱</span>
+            <span>CleanCharcoal<span class="logo-rwanda">Rwanda</span></span>
+        </a>
+        
+        <div class="logout-icon">
+            <i class="fas fa-sign-out-alt"></i>
+        </div>
+        
+        <h2>Ready to Leave?</h2>
+        <p>Are you sure you want to logout of your account?</p>
+        
+        <div class="user-info" id="userInfo">
+            <h6>Current Session</h6>
+            <div class="user-detail">
+                <span class="detail-label">User:</span>
+                <span class="detail-value" id="userName">Loading...</span>
+            </div>
+            <div class="user-detail">
+                <span class="detail-label">Email:</span>
+                <span class="detail-value" id="userEmail">Loading...</span>
+            </div>
+            <div class="user-detail">
+                <span class="detail-label">Last Login:</span>
+                <span class="detail-value" id="lastLogin">Loading...</span>
+            </div>
+        </div>
+        
+        <div class="action-buttons">
+            <button class="btn btn-cancel" onclick="cancelLogout()">
+                <i class="fas fa-times me-2"></i> Cancel
+            </button>
+            <button class="btn btn-logout" onclick="performLogout()">
+                <i class="fas fa-sign-out-alt me-2"></i> Logout
+            </button>
+        </div>
+    </div>
+    
+    <div class="text-center mt-4 text-white">
+        <p>You will be automatically redirected to the home page in <span id="countdown">10</span> seconds</p>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        let countdownTimer;
+        let secondsRemaining = 10;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚪 Logout Page Loaded');
+            
+            // Load user info (kept for demo/session awareness)
+            loadUserInfo();
+            
+            // Start auto-logout countdown
+            startCountdown();
+        });
+
+        // =======================================================
+        // NEW/MODIFIED FUNCTIONS FOR DYNAMIC BUTTONS
+        // =======================================================
+
+        function cancelLogout() {
+            // 1. Clear auto-redirect timer
+            clearInterval(countdownTimer);
+            
+            // 2. Redirect back to the dashboard
+            window.location.href = 'dashboard.html';
+        }
+
+        function performLogout() {
+            // 1. Clear auto-redirect timer
+            clearInterval(countdownTimer);
+            
+            // 2. Clear user sessions (simulating actual logout)
+            localStorage.removeItem('userSession');
+            sessionStorage.removeItem('userSession');
+            localStorage.removeItem('rememberMe');
+            
+            console.log('✅ User logged out successfully');
+            
+            // 3. Show success message (briefly)
+            const logoutCard = document.querySelector('.logout-card');
+            logoutCard.innerHTML = `
+                <div class="logo">🌱 CleanCharcoal<span style="color: #F57C00;">Rwanda</span></div>
+                <div class="logout-icon success-animation" style="color: var(--primary-green); animation: none;">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <h2>You Have Logged Out</h2>
+                <p>Your session has been securely ended.</p>
+                <a href="index.html" class="btn btn-logout">
+                    <i class="fas fa-home me-2"></i> Go to Home Page
+                </a>
+            `;
+
+            // 4. Redirect to home after a short delay
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 2000); 
+        }
+
+        // =======================================================
+        // ORIGINAL HELPER FUNCTIONS (KEPT FOR DEMO)
+        // =======================================================
+
+        function loadUserInfo() {
+            // This function remains to load session info for the user
+            try {
+                let userSession = localStorage.getItem('userSession') || 
+                                 sessionStorage.getItem('userSession');
+                
+                if (userSession) {
+                    userSession = JSON.parse(userSession);
+                    
+                    document.getElementById('userName').textContent = userSession.userName || 'User';
+                    document.getElementById('userEmail').textContent = userSession.email || 'Not available';
+                    
+                    if (userSession.lastLogin) {
+                        const lastLogin = new Date(userSession.lastLogin);
+                        document.getElementById('lastLogin').textContent = 
+                            lastLogin.toLocaleDateString() + ' ' + lastLogin.toLocaleTimeString();
+                    } else {
+                        document.getElementById('lastLogin').textContent = 'Just now';
+                    }
+                } else {
+                    // No session found - Already logged out or session expired
+                    document.getElementById('userInfo').innerHTML = `
+                        <div class="alert alert-warning mb-0">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            No active session found. You are already logged out.
+                        </div>
+                    `;
+                    document.querySelector('.action-buttons').innerHTML = `
+                        <a href="index.html" class="btn btn-logout">
+                            <i class="fas fa-home me-2"></i> Go to Home
+                        </a>
+                    `;
+                    // Immediately stop countdown if no session
+                    clearInterval(countdownTimer);
+                    document.querySelector('.text-center.mt-4.text-white').remove();
+                }
+            } catch (error) {
+                console.error('Error loading user info:', error);
+            }
+        }
+
+        function startCountdown() {
+            const countdownElement = document.getElementById('countdown');
+            if (!countdownElement) return;
+
+            countdownTimer = setInterval(() => {
+                secondsRemaining--;
+                countdownElement.textContent = secondsRemaining;
+                
+                if (secondsRemaining <= 0) {
+                    clearInterval(countdownTimer);
+                    performLogout(); // Use the new performLogout
+                }
+            }, 1000);
+        }
+    </script>
+</body>
+</html>
